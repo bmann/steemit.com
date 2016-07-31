@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import transaction from 'app/redux/Transaction';
 // import ReactTooltip from 'react-tooltip';
+import Slider from 'react-rangeslider';
 import Icon from 'app/components/elements/Icon';
 import Tooltip from 'app/components/elements/Tooltip';
 import Follow from 'app/components/elements/Follow';
@@ -42,16 +43,20 @@ class Voting extends React.Component {
         flag: false
     };
 
-    constructor() {
-        super()
-        this.state = {}
+    constructor(props) {
+        super(props)
+        this.state = {
+            showWeight: false,
+            weight: 10000
+        }
         this.voteUp = e => {
             e.preventDefault();
             if(this.props.voting) return
             this.setState({votingUp: true, votingDown: false})
             const {author, permlink, username, myVote} = this.props
             // already voted Up, remove the vote
-            const weight = myVote > 0 ? 0 : 10000
+            const weight = myVote > 0 ? 0 : this.state.weight
+            if(this.state.showWeight) this.setState({showWeight: false})
             this.props.vote(weight, {author, permlink, username, myVote})
         }
         this.voteDown = e => {
@@ -63,12 +68,19 @@ class Voting extends React.Component {
             const weight = myVote < 0 ? 0 : -10000
             this.props.vote(weight, {author, permlink, username, myVote})
         }
+        this.handleWeightChange = weight => {
+            this.setState({weight: weight})
+        }
+        this.toggleWeight = e => {
+            e.preventDefault();
+            this.setState({showWeight: !this.state.showWeight})
+        }
         this.shouldComponentUpdate = shouldComponentUpdate(this, 'Voting')
     }
 
     render() {
         const {myVote, active_votes, showList, voting, flag} = this.props;
-        const {votingUp, votingDown} = this.state;
+        const {votingUp, votingDown, showWeight, weight} = this.state;
         // console.log('-- Voting.render -->', myVote, votingUp, votingDown);
         if(!active_votes) return <span></span>
         // if( payout[0] == '-' ) payout = "0.000 SBD";
@@ -133,12 +145,27 @@ class Voting extends React.Component {
         if (showList) {
             voters_list = <DropdownMenu selected={pluralize('votes', count, true)} className="Voting__voters_list" items={voters} el="div" />;
         }
+
+        let weightEl = <a href="#" onClick={this.toggleWeight}>
+            <Icon className="dropdown-arrow" name="dropdown-arrow"/>
+        </a>;
+        let weight_slider = null;
+        if (showWeight) {
+            weight_slider = <Slider value={weight} min={0} max={10000} orientation="horizontal" onChange={this.handleWeightChange} />
+            weightEl = <a href="#" onClick={this.toggleWeight}>
+                {weight}
+            </a>;
+        }
         return (
             <span className="Voting">
                 <span className="Voting__inner">
+                    {weight_slider}
                     <span className={classUp}>
                         {votingUpActive ? up : <a href="#" onClick={this.voteUp} title={myVote > 0 ? 'Remove Vote' : 'Upvote'}>{up}</a>}
                     </span>
+                    {weightEl}
+                </span>
+                <span className="Voting__inner">
                     {payoutEl}
                     {/*<span className={classDown}>
                         {votingDownActive ? down : <a href="#" onClick={this.voteDown} title="Downvote">{down}</a>}

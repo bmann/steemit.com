@@ -123,4 +123,43 @@
   border-right: 1px solid $medium-gray;
   padding-right: 0.5rem;
   margin-right: 1rem;
+  position: relative;
+}
+
+.Voting .rangeslider {
+    background: #e6e6e6;
+    border-radius: 10px;
+    display: inline-block;
+    height: 10px;
+    position: absolute;
+    top: 30px;
+    width: 200px;
+    .rangeslider__fill, .rangeslider__handle {
+        display: block;
+        position: absolute;
+    }
+    .rangeslider__fill {
+        display: block;
+        height: 100%;
+        background: #4ba2f2;
+        border-radius: 10px;
+        top: 0;
+    }
+    &, .rangeslider__fill {
+        box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+    .rangeslider__handle {
+        background: #fff;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        display: inline-block;
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-radius: 20px;
+        top: -5px;
+        &:active {
+            background: #999;
+        }
+    }
 }
