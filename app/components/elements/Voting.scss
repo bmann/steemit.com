@@ -124,6 +124,16 @@
   padding-right: 0.5rem;
   margin-right: 1rem;
   position: relative;
+  .cancel {
+    font-size: 80%;
+    padding: 0 0.4em;
+    margin-left: 0.5rem;
+    margin-right: 2px;
+    background-color: #f8f8f8;
+    border-radius: 50%;
+    border: 1px solid #dadada;
+    color: #8a8a8a;
+  }
 }
 
 .Voting .rangeslider {
