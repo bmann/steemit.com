@@ -75,6 +75,11 @@ class Voting extends React.Component {
             e.preventDefault();
             this.setState({showWeight: !this.state.showWeight})
         }
+        this.toggleWeight = e => {
+            e.preventDefault();
+            // Always reset if they dismiss the bar
+            this.setState({weight: 10000})
+        }
         this.shouldComponentUpdate = shouldComponentUpdate(this, 'Voting')
     }
 
