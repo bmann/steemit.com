@@ -160,6 +160,9 @@ class Voting extends React.Component {
             weightEl = <span className="Voting__inner">
                 <a href="#" onClick={this.toggleWeight}>
                     {weight}
+                <span>
+                    {weight / 100}%
+                </span>
                 </a>
             </span>;
         }
