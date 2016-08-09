@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import transaction from 'app/redux/Transaction';
-// import ReactTooltip from 'react-tooltip';
 import Slider from 'react-rangeslider';
 import Icon from 'app/components/elements/Icon';
 import Tooltip from 'app/components/elements/Tooltip';
@@ -12,6 +11,7 @@ import pluralize from 'pluralize';
 import {formatDecimal, parsePayoutAmount} from 'app/utils/ParsersAndFormatters';
 import DropdownMenu from 'app/components/elements/DropdownMenu';
 import TimeAgoWrapper from 'app/components/elements/TimeAgoWrapper';
+import {LinkWithDropdown} from 'react-foundation-components/lib/global/dropdown';
 
 const ABOUT_FLAG = 'Flagging a post can remove rewards and make this material less visible.  You can still unflag or upvote later if you change your mind.'
 const MAX_VOTES_DISPLAY = 20;
@@ -69,7 +69,7 @@ class Voting extends React.Component {
             this.props.vote(weight, {author, permlink, username, myVote})
         }
         this.handleWeightChange = weight => {
-            this.setState({weight: weight})
+            this.setState({weight: weight + 100})
         }
         this.toggleWeight = e => {
             e.preventDefault();
@@ -147,29 +147,41 @@ class Voting extends React.Component {
             voters_list = <DropdownMenu selected={pluralize('votes', count, true)} className="Voting__voters_list" items={voters} el="div" />;
         }
 
-        let weightEl = <a href="#" onClick={this.toggleWeight}>
-            <Icon className="dropdown-arrow" name="dropdown-arrow"/>
-        </a>;
-        let weight_slider = null;
-        if (showWeight) {
-            weight_slider = <Slider value={weight} min={100} step={100} max={10000} orientation="horizontal" onChange={this.handleWeightChange} />
-            weightEl = <span className="Voting__inner">
-                <span>
-                    {weight / 100}%
-                </span>
-                <a className="cancel" onClick={this.toggleWeight}>
-                    X
-                </a>
-            </span>;
+        // let weightEl = <a href="#" onClick={this.toggleWeight}>
+        //     <Icon className="dropdown-arrow" name="dropdown-arrow"/>
+        // </a>;
+        // let weight_slider = null;
+        // if (showWeight) {
+        //     weight_slider = <Slider value={weight} min={100} step={100} max={10000} orientation="horizontal" onChange={this.handleWeightChange} />
+        //     weightEl = <span className="Voting__inner">
+        //         <span>
+        //             {weight / 100}%
+        //         </span>
+        //         <a className="cancel" onClick={this.toggleWeight}>
+        //             X
+        //         </a>
+        //     </span>;
+        // }
+        let voteUp = null;
+        if (true) {
+            const dropdown = <div className="Voting__adjust_weight">
+                <Slider value={weight} min={100} step={100} max={10000} orientation="vertical" onChange={this.handleWeightChange} />
+                <div className="weight-display">{weight/100}%</div>
+                <a href="#" onClick={this.voteUp} className="button">Vote</a>
+            </div>;
+            voteUp = <LinkWithDropdown
+                dropdownPosition="bottom"
+                dropdownAlignment="left"
+                dropdownContent={dropdown}>
+                    <span className={classUp}>
+                            {votingUpActive ? up : <span title={myVote > 0 ? 'Remove Vote' : 'Upvote'}>{up}</span>}
+                    </span>
+            </LinkWithDropdown>;
         }
         return (
             <span className="Voting">
                 <span className="Voting__inner">
-                    {weight_slider}
-                    <span className={classUp}>
-                        {votingUpActive ? up : <a href="#" onClick={this.voteUp} title={myVote > 0 ? 'Remove Vote' : 'Upvote'}>{up}</a>}
-                    </span>
-                    {weightEl}
+                    {voteUp}
                 </span>
                 <span className="Voting__inner">
                     {payoutEl}
