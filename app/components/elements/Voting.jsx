@@ -158,11 +158,11 @@ class Voting extends React.Component {
         if (showWeight) {
             weight_slider = <Slider value={weight} min={100} step={100} max={10000} orientation="horizontal" onChange={this.handleWeightChange} />
             weightEl = <span className="Voting__inner">
-                <a href="#" onClick={this.toggleWeight}>
-                    {weight}
                 <span>
                     {weight / 100}%
                 </span>
+                <a className="cancel" onClick={this.toggleWeight}>
+                    X
                 </a>
             </span>;
         }
