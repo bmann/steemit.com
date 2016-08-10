@@ -11,10 +11,16 @@ import pluralize from 'pluralize';
 import {formatDecimal, parsePayoutAmount} from 'app/utils/ParsersAndFormatters';
 import DropdownMenu from 'app/components/elements/DropdownMenu';
 import TimeAgoWrapper from 'app/components/elements/TimeAgoWrapper';
-import {LinkWithDropdown} from 'react-foundation-components/lib/global/dropdown';
+import {Dropdown, LinkWithDropdown} from 'react-foundation-components/lib/global/dropdown';
 
 const ABOUT_FLAG = 'Flagging a post can remove rewards and make this material less visible.  You can still unflag or upvote later if you change your mind.'
 const MAX_VOTES_DISPLAY = 20;
+
+function findParent(el, class_name) {
+    if (el.className && el.className.indexOf && el.className.indexOf(class_name) !== -1) return el;
+    if (el.parentElement) return findParent(el.parentElement, class_name);
+    return null;
+}
 
 class Voting extends React.Component {
 
@@ -58,7 +64,7 @@ class Voting extends React.Component {
             const weight = myVote > 0 ? 0 : this.state.weight
             if(this.state.showWeight) this.setState({showWeight: false})
             this.props.vote(weight, {author, permlink, username, myVote})
-        }
+        };
         this.voteDown = e => {
             e.preventDefault();
             if(this.props.voting) return
@@ -67,16 +73,28 @@ class Voting extends React.Component {
             // already vote Down, remove vote
             const weight = myVote < 0 ? 0 : -10000
             this.props.vote(weight, {author, permlink, username, myVote})
-        }
+        };
         this.handleWeightChange = weight => {
             this.setState({weight: weight + 100})
-        }
+        };
         this.toggleWeight = e => {
             e.preventDefault();
-            // Always reset if they dismiss the bar
-            this.setState({showWeight: !this.state.showWeight, weight: 10000})
-        }
+            this.setState({showWeight: !this.state.showWeight})
+        };
+        this.closeWeightDropdownOnOutsideClick = e => {
+            const inside_dropdown = findParent(e.target, 'Voting__adjust_weight');
+            const inside_upvote_button = findParent(e.target, 'Voting__button-up');
+            if (!inside_dropdown && !inside_upvote_button) this.setState({showWeight: false});
+        };
         this.shouldComponentUpdate = shouldComponentUpdate(this, 'Voting')
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        const showWeight = this.state.showWeight;
+        if (showWeight !== prevState.showWeight) {
+            if (showWeight) document.body.addEventListener('click', this.closeWeightDropdownOnOutsideClick);
+            else document.body.removeEventListener('click', this.closeWeightDropdownOnOutsideClick);
+        }
     }
 
     render() {
@@ -162,26 +180,22 @@ class Voting extends React.Component {
         //         </a>
         //     </span>;
         // }
-        let voteUp = null;
-        if (true) {
-            const dropdown = <div className="Voting__adjust_weight">
-                <Slider value={weight} min={100} step={100} max={10000} orientation="vertical" onChange={this.handleWeightChange} />
-                <div className="weight-display">{weight/100}%</div>
-                <a href="#" onClick={this.voteUp} className="button">Vote</a>
-            </div>;
-            voteUp = <LinkWithDropdown
-                dropdownPosition="bottom"
-                dropdownAlignment="left"
-                dropdownContent={dropdown}>
-                    <span className={classUp}>
-                            {votingUpActive ? up : <span title={myVote > 0 ? 'Remove Vote' : 'Upvote'}>{up}</span>}
-                    </span>
-            </LinkWithDropdown>;
+        let dropdown = null;
+        if (showWeight) {
+            dropdown = <Dropdown><div className="Voting__adjust_weight">
+                    <Slider min={100} max={10000} step={100} value={weight} orientation="vertical" onChange={this.handleWeightChange} />
+                    <div className="weight-display">{weight / 100}%</div>
+                    <a href="#" onClick={this.voteUp} className="button">Vote</a>
+                </div>
+            </Dropdown>;
         }
         return (
             <span className="Voting">
                 <span className="Voting__inner">
-                    {voteUp}
+                    <span className={classUp}>
+                        {votingUpActive ? up : <a href="#" onClick={this.toggleWeight} title={myVote > 0 ? 'Remove Vote' : 'Upvote'}>{up}</a>}
+                        {dropdown}
+                    </span>
                 </span>
                 <span className="Voting__inner">
                     {payoutEl}

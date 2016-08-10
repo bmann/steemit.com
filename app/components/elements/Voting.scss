@@ -120,7 +120,7 @@
 }
 
 .Voting__inner {
-  padding-right: 0.5rem;
+  // padding-right: 0.5rem;
   position: relative;
   .cancel {
     font-size: 80%;
@@ -143,40 +143,60 @@
   }
 }
 
-.Voting__adjust_weight .rangeslider {
-  background: #e6e6e6;
-  border-radius: 10px;
-  display: block;
-  position: relative;
-  height: 160px;
-  width: 10px;
-  margin: 0 auto;
-  .rangeslider__fill, .rangeslider__handle {
-    display: block;
-    position: absolute;
-  }
-  .rangeslider__fill {
-    display: block;
-    height: 100%;
-    background: #4ba2f2;
-    border-radius: 10px;
-    top: 0;
-  }
-  &, .rangeslider__fill {
-    box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.3);
-  }
-  .rangeslider__handle {
-    background: #fff;
-    border: 1px solid #ccc;
-    cursor: pointer;
-    display: block;
-    position: absolute;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    margin-left: -7px;
-    &:active {
-      background: #999;
+.Voting__adjust_weight {
+  .rangeslider {
+    position: relative;
+    background: #e6e6e6;
+    .rangeslider__fill, .rangeslider__handle {
+      position: absolute;
+    }
+    &, .rangeslider__fill {
+      display: block;
+      box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+    }
+    .rangeslider__handle {
+      background: #fff;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      display: inline-block;
+      position: absolute;
+      &:active {
+        background: #999;
+      }
     }
   }
+  .rangeslider-vertical {
+    margin: 0 auto;
+    height: 150px;
+    max-width: 10px;
+    background: none;
+    .rangeslider__fill {
+      width: 100%;
+      background: #4ba2f2;
+      box-shadow: none;
+      bottom: 0;
+    }
+    .rangeslider__handle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      left: -10px;
+      &:active {
+        box-shadow: none;
+      }
+    }
+  }
+
+  .button {
+    color: #fff;
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
+
+.Voting__button-up {
+  display: inline-block;
+  position: relative;
 }
