@@ -50,10 +50,11 @@ class Voting extends React.Component {
     };
 
     constructor(props) {
-        super(props)
+        super(props);
+        const saved_weight_value = (process.env.BROWSER && localStorage.getItem('vote_weight'));
         this.state = {
             showWeight: false,
-            weight: 10000
+            weight: saved_weight_value ? parseInt(saved_weight_value, 10) : 10000
         }
         this.voteUp = e => {
             e.preventDefault();
@@ -61,8 +62,11 @@ class Voting extends React.Component {
             this.setState({votingUp: true, votingDown: false})
             const {author, permlink, username, myVote} = this.props
             // already voted Up, remove the vote
+            if (this.state.weight !== 10000) {
+                localStorage.setItem('vote_weight', this.state.weight);
+            }
             const weight = myVote > 0 ? 0 : this.state.weight
-            if(this.state.showWeight) this.setState({showWeight: false})
+            if (this.state.showWeight) this.setState({showWeight: false})
             this.props.vote(weight, {author, permlink, username, myVote})
         };
         this.voteDown = e => {
