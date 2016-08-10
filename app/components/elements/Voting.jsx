@@ -15,6 +15,7 @@ import {Dropdown, LinkWithDropdown} from 'react-foundation-components/lib/global
 
 const ABOUT_FLAG = 'Flagging a post can remove rewards and make this material less visible.  You can still unflag or upvote later if you change your mind.'
 const MAX_VOTES_DISPLAY = 20;
+const VOTE_WEIGHT_DROPDOWN_THRESHOLD = 1000.0 * 1000.0 * 1000.0;
 
 function findParent(el, class_name) {
     if (el.className && el.className.indexOf && el.className.indexOf(class_name) !== -1) return el;
@@ -40,6 +41,7 @@ class Voting extends React.Component {
         pending_payout: React.PropTypes.string,
         total_payout: React.PropTypes.string,
         cashout_time: React.PropTypes.string,
+        vesting_shares: React.PropTypes.number,
         showList: React.PropTypes.bool,
         voting: React.PropTypes.bool,
     };
@@ -101,8 +103,12 @@ class Voting extends React.Component {
         }
     }
 
+    componentWillUnmount() {
+        document.body.removeEventListener('click', this.closeWeightDropdownOnOutsideClick);
+    }
+
     render() {
-        const {myVote, active_votes, showList, voting, flag} = this.props;
+        const {myVote, active_votes, showList, voting, flag, vesting_shares} = this.props;
         const {votingUp, votingDown, showWeight, weight} = this.state;
         // console.log('-- Voting.render -->', myVote, votingUp, votingDown);
         if(!active_votes) return <span></span>
@@ -184,20 +190,25 @@ class Voting extends React.Component {
         //         </a>
         //     </span>;
         // }
+        let voteUpClick = this.voteUp;
         let dropdown = null;
-        if (showWeight) {
-            dropdown = <Dropdown><div className="Voting__adjust_weight">
-                    <Slider min={100} max={10000} step={100} value={weight} orientation="vertical" onChange={this.handleWeightChange} />
-                    <div className="weight-display">{weight / 100}%</div>
-                    <a href="#" onClick={this.voteUp} className="button">Vote</a>
-                </div>
-            </Dropdown>;
+        if (vesting_shares > VOTE_WEIGHT_DROPDOWN_THRESHOLD) {
+            voteUpClick = this.toggleWeight;
+            if (showWeight) {
+                dropdown = <Dropdown>
+                    <div className="Voting__adjust_weight">
+                        <Slider min={100} max={10000} step={100} value={weight} orientation="vertical" onChange={this.handleWeightChange} />
+                        <div className="weight-display">{weight / 100}%</div>
+                        <a href="#" onClick={this.voteUp} className="button">Vote</a>
+                    </div>
+                </Dropdown>;
+            }
         }
         return (
             <span className="Voting">
                 <span className="Voting__inner">
                     <span className={classUp}>
-                        {votingUpActive ? up : <a href="#" onClick={this.toggleWeight} title={myVote > 0 ? 'Remove Vote' : 'Upvote'}>{up}</a>}
+                        {votingUpActive ? up : <a href="#" onClick={voteUpClick} title={myVote > 0 ? 'Remove Vote' : 'Upvote'}>{up}</a>}
                         {dropdown}
                     </span>
                 </span>
@@ -222,7 +233,9 @@ export default connect(
         const permlink = post.get('permlink')
         const last_payout = post.get('last_payout')
         const active_votes = post.get('active_votes')
-        const username = state.user.getIn(['current', 'username'])
+        const current_account = state.user.get('current')
+        const username = current_account ? current_account.get('username') : null;
+        const vesting_shares = current_account ? current_account.get('vesting_shares') : 0.0;
         const voting = state.global.get(`transaction_vote_active_${author}_${permlink}`)
         let myVote = null;
         if (username && active_votes) {
@@ -232,7 +245,7 @@ export default connect(
         }
         return {
             ...ownProps,
-            myVote, author, permlink, username, active_votes,
+            myVote, author, permlink, username, active_votes, vesting_shares,
             loggedin: username != null,
             voting
         }
